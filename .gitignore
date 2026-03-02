@@ -109,7 +109,7 @@ Thumbs.db
 # Project specific
 *.pdf
 *.txt
-./notes/
+./notes/*
 
 #vscode
 .vscode/
