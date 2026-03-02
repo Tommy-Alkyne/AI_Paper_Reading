@@ -149,7 +149,7 @@ for index, pdf_file in enumerate(pdf_files, start=1):
     except Exception as exc:
         print(f"分析失败: {exc}")
 
-    break
+
 
 print("\n" + "=" * 60)
 print(f"处理完成！共处理 {len(pdf_files)} 个PDF文件")
