@@ -110,6 +110,7 @@ Thumbs.db
 *.pdf
 *.txt
 ./notes/*
+./out
 
 #vscode
 .vscode/
