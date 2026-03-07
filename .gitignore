@@ -111,6 +111,8 @@ Thumbs.db
 *.txt
 ./notes/*
 ./out
+./files
+./files_extracted
 
 #vscode
 .vscode/
