@@ -111,7 +111,8 @@ Thumbs.db
 *.txt
 ./notes/*
 ./out
-./notes
+notes/*
+!notes/.gitkeep
 
 #vscode
 .vscode/

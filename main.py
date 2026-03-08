@@ -94,7 +94,7 @@ for index, pdf_file in enumerate(pdf_files, start=1):
             f.write(remaining_content)
         
         print("API分析完成：")
-        print(output_content)
+        #print(output_content)
         print(f"\n✅ 分析结果已保存: {md_path}")
     except Exception as exc:
         print(f"分析失败: {exc}")
