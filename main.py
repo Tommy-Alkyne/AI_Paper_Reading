@@ -8,9 +8,13 @@ from pypdf import PdfReader
 
 from extract_pdf import extract_save
 
-prompt_path = "./prompt.*"
+prompt_path = "./prompt.md"
 out_dir = "./notes"
-system_prompt_path = "./system_prompt.*"
+system_prompt_path = "./system_prompt.md"
+
+os.environ.pop("HTTP_PROXY", None)
+os.environ.pop("HTTPS_PROXY", None)
+os.environ.pop("ALL_PROXY", None)
 
 client = None
 
@@ -37,7 +41,7 @@ for index, pdf_file in enumerate(pdf_files, start=1):
     pdf_stem = os.path.splitext(pdf_name)[0]
     txt_path = os.path.join(txt_dir, f"{pdf_stem}.txt")
 
-    prompt_text = extract_save(pdf_file, pdf_name, pdf_stem, txt_path, save = True)
+    prompt_text = extract_save(pdf_file, pdf_name, pdf_stem, txt_path, save = False)
 
     # 从txt文件读取并发送给API分析
     try:
@@ -94,6 +98,8 @@ for index, pdf_file in enumerate(pdf_files, start=1):
         print(f"\n✅ 分析结果已保存: {md_path}")
     except Exception as exc:
         print(f"分析失败: {exc}")
+
+    break
 
 
 

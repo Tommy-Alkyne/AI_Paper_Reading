@@ -1,0 +1,1 @@
+please analyse the following paper and extract the parameters used in the study, including their types, ranges, and any relevant details. Please present the extracted information in a structured format, as a table or JSON object.
