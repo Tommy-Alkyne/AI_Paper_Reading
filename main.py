@@ -36,6 +36,7 @@ os.makedirs(txt_dir, exist_ok=True)
 print(f"找到 {len(pdf_files)} 个PDF文件")
 print("=" * 60)
 
+n = 0
 for index, pdf_file in enumerate(pdf_files, start=1):
     pdf_name = os.path.basename(pdf_file)
     pdf_stem = os.path.splitext(pdf_name)[0]
@@ -95,11 +96,13 @@ for index, pdf_file in enumerate(pdf_files, start=1):
         
         print("API分析完成：")
         #print(output_content)
+        n = n+1
+        print(f"\n 已分析{n}/{len(pdf_files)}个文件")
         print(f"\n✅ 分析结果已保存: {md_path}")
     except Exception as exc:
         print(f"分析失败: {exc}")
 
-
+    #break
 
 
 
