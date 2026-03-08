@@ -6,35 +6,23 @@ import os
 from openai import OpenAI
 from pypdf import PdfReader
 
-USE_API = True
-prompt_path = "./prompt.txt"
+from extract_pdf import extract_save
+
+prompt_path = "./prompt.*"
 out_dir = "./notes"
-system_prompt_path = "./system_prompt.txt"
+system_prompt_path = "./system_prompt.*"
 
 client = None
-if USE_API:
-    api_key = os.environ.get("DEEPSEEK_API_KEY")
-    base_url = os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
-    model_name = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
-    if not api_key:
-        raise RuntimeError("未找到API Key，请设置环境变量: DEEPSEEK_API_KEY")
 
-    client = OpenAI(api_key=api_key, base_url=base_url)
-    print(f"API_PROVIDER=deepseek, base_url={base_url}, model={model_name}")
+api_key = os.environ.get("DEEPSEEK_API_KEY")
+base_url = os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+model_name = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
+if not api_key:
+    raise RuntimeError("未找到API Key，请设置环境变量: DEEPSEEK_API_KEY")
 
+client = OpenAI(api_key=api_key, base_url=base_url)
+print(f"API_PROVIDER=deepseek, base_url={base_url}, model={model_name}")
 
-def extract_pdf_text(pdf_path: str) -> str:
-    """提取PDF文本"""
-    try:
-        reader = PdfReader(pdf_path)
-        pages = []
-        for page in reader.pages:
-            text = page.extract_text()
-            if text:
-                pages.append(text)
-        return "\n\n".join(pages).strip()
-    except Exception as e:
-        return ""
 
 
 pdf_files = sorted(glob.glob("./files/*.pdf"))
@@ -49,25 +37,7 @@ for index, pdf_file in enumerate(pdf_files, start=1):
     pdf_stem = os.path.splitext(pdf_name)[0]
     txt_path = os.path.join(txt_dir, f"{pdf_stem}.txt")
 
-    print(f"\n[{index}/{len(pdf_files)}] 提取并分析: {pdf_name}")
-
-    # 本地提取PDF文本
-    full_text = extract_pdf_text(pdf_file)
-    if not full_text:
-        print("提取文本失败或为空，跳过")
-        continue
-    print(f"提取成功，文本长度: {len(full_text)} 字符")
-
-    # 保存到txt文件
-    with open(txt_path, "w", encoding="utf-8") as f:
-        f.write(full_text)
-    print(f"文本已保存: {txt_path}")
-
-    if not USE_API:
-        print("USE_API=False，跳过API分析")
-        continue
-
-    prompt_text = full_text
+    prompt_text = extract_save(pdf_file, pdf_name, pdf_stem, txt_path, save = True)
 
     # 从txt文件读取并发送给API分析
     try:
