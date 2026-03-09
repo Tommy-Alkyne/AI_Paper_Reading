@@ -113,6 +113,7 @@ Thumbs.db
 ./out
 notes/*
 !notes/.gitkeep
+param_data/*
 
 #vscode
 .vscode/
