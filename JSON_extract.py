@@ -40,65 +40,61 @@ def extract_json_safely(text):
     
     
 param_files = sorted(glob.glob("./notes/*.md"))
-all_results = []
+results = []
 
 for i, param in enumerate(param_files):
-    file_name = os.path.basename(param)
-
-    with open(param,"r", encoding="utf-8") as f:
+    with open(param, "r", encoding="utf-8") as f:
         content = f.read()
-
     data = extract_json_safely(content)
+    if not data: continue
 
-    print(f"Extracted {i+1} / {len(param_files)} \n")
-    print(data)
+    print(f"Extracted {i+1}/{len(param_files)} files")
+    # 获取子字典的防御性函数
+    def g(category, key, default="N/A"):
+        return data.get(category, {}).get(key, default)
 
+    row = {
+        "citation": data.get("citation", "N/A"),
+        "title": data.get("title", "N/A"),
+        "dim": g("geometry_parameters", "dimension"),
+        
+        # 颗粒核心参数：尝试兼容多种写法
+        "is_identical": g("particle_properties", "is_identical"),
+        "rho_pf": g("density_properties", "density_ratio_p_f"),
+        "d_ratio": g("particle_properties", "diameter_ratio_d1_d2") or "1.0",
+        "density_p1": g("particle_properties", "density_p1"),
+        "density_p2": g("particle_properties", "density_p2"),
+        "diameter_p1": g("particle_properties", "diameter_p1"),
+        "diameter_p2": g("particle_properties", "diameter_p2"),
+        
+        # 初始条件
+        "arrangement": g("initial_conditions", "arrangement"),
+        "dist_v": g("initial_conditions", "initial_distance_vertical"),
+        "dist_h": g("initial_conditions", "initial_distance_horizontal"),
+        "dist_c": g("initial_conditions", "initial_distance_center"),
+        
+        # 流体参数
+        "Re": g("fluid_properties", "reynolds_number"),
+        "viscosity": g("fluid_properties", "viscosity"),
 
-    if data:
-        # 创建一个扁平的字典来存储这篇论文的所有参数
-        row = {
-            #"file_name": os.path.basename(param),
-            "title": data.get("title", "N/A"),
-            "citation": data.get("citation", "N/A")
-        }
+        #计算参数
+        "domain_size": g("gemetry_parameters", "domain_size"),
+        "boudary": g("geometry_parameters", "boundary_conditions"),
         
-        # --- 分类别提取 ---
-        
-        # 1. 初始条件 (Initial Conditions)
-        init = data.get("initial_conditions", {})
-        row["init_arrangement"] = init.get("arrangement")
-        row["init_dist_center"] = init.get("initial_distance_center")
-        row["init_angle"] = init.get("initial_angle")
-        
-        # 2. 颗粒特性 (Particle Properties)
-        part = data.get("particle_properties", {})
-        row["part_identical"] = part.get("is_identical")
-        row["part_rho1"] = part.get("density_p1") or part.get("density_ratio_p1_p2")
-        row["part_d1"] = part.get("diameter_d1") or part.get("diameter_ratio_d1_d2")
-        
-        # 3. 流体特性 (Fluid Properties)
-        fluid = data.get("fluid_properties", {})
-        row["fluid_re"] = fluid.get("reynolds_number")
-        row["fluid_mu"] = fluid.get("viscosity")
-        
-        # 4. 密度特性
-        row["rho_ratio_p_f"] = data.get("density_properties", {}).get("density_ratio_p_f")
-        
-        # 5. 几何参数
-        geom = data.get("geometry_parameters", {})
-        row["geom_dim"] = geom.get("dimension")
-        row["geom_domain"] = geom.get("domain_size")
-        
-        # 6. 其他无量纲数 (这个比较特殊，可能有很多 key)
-        others = data.get("other_dimensionless_numbers", {})
-        if isinstance(others, dict):
-            row["num_ga"] = others.get("galileo_number") or others.get("ga_number")
-            row["num_gr"] = others.get("grashof_number")
-        
-        all_results.append(row)
+        # 复杂物理量（合并到一起）
+        "Ga": g("other_dimensionless_numbers", "galileo_number") or g("other_dimensionless_numbers", "ga_number"),
+        "Gr": g("other_dimensionless_numbers", "grashof_number"),
+        "Pr": g("other_dimensionless_numbers", "prandtl_number"),
+        "e_n": g("other_dimensionless_numbers", "restitution_coefficient") or g("other_dimensionless_numbers", "restitution_coefficient"),
+    }
 
-# --- 汇总导出 ---
-df = pd.DataFrame(all_results)
+    # 列表转字符串处理
+    for k, v in row.items():
+        if isinstance(v, list):
+            row[k] = "; ".join(map(str, v))
+            
+    results.append(row)
+
+# 导出
+df = pd.DataFrame(results)
 df.to_csv("param_data/summary_data.csv", index=False, encoding="utf-8-sig")
-
-
