@@ -99,3 +99,4 @@ An example of the file tree of the working dirctory is as follows:
 
 ## TODO
 - [ ] Modify citekey matching based on better bibtex export format.
+- [ ] Support other API keys
