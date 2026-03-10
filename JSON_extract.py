@@ -61,11 +61,11 @@ for i, param in enumerate(param_files):
         # 颗粒核心参数：尝试兼容多种写法
         "is_identical": g("particle_properties", "is_identical"),
         "rho_pf": g("density_properties", "density_ratio_p_f"),
-        "d_ratio": g("particle_properties", "diameter_ratio_d1_d2") or "1.0",
+        #"d_ratio": g("particle_properties", "diameter_ratio_d1_d2") or "1.0",
         "density_p1": g("particle_properties", "density_p1"),
         "density_p2": g("particle_properties", "density_p2"),
-        "diameter_p1": g("particle_properties", "diameter_p1"),
-        "diameter_p2": g("particle_properties", "diameter_p2"),
+        "diameter_p1": g("particle_properties", "diameter_d1"),
+        "diameter_p2": g("particle_properties", "diameter_d2"),
         
         # 初始条件
         "arrangement": g("initial_conditions", "arrangement"),
@@ -78,7 +78,7 @@ for i, param in enumerate(param_files):
         "viscosity": g("fluid_properties", "viscosity"),
 
         #计算参数
-        "domain_size": g("gemetry_parameters", "domain_size"),
+        "domain_size": g("geometry_parameters", "domain_size"),
         "boudary": g("geometry_parameters", "boundary_conditions"),
         
         # 复杂物理量（合并到一起）
@@ -97,4 +97,4 @@ for i, param in enumerate(param_files):
 
 # 导出
 df = pd.DataFrame(results)
-df.to_csv("param_data/summary_data.csv", index=False, encoding="utf-8-sig")
+df.to_json("summary_data.json", orient="records", indent=2, force_ascii=False)

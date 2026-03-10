@@ -114,6 +114,8 @@ Thumbs.db
 notes/*
 !notes/.gitkeep
 param_data/*
+*.csv
+*.json
 
 #vscode
 .vscode/
